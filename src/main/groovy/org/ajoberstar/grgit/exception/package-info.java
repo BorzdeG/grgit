@@ -13,14 +13,4 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ajoberstar.grgit.exception
-
-import groovy.transform.CompileStatic
-import groovy.transform.InheritConstructors
-
-/**
- * Generic exception for any failures in use of Grgit.
- */
-@InheritConstructors
-@CompileStatic
-class GrgitException extends RuntimeException {}
+package org.ajoberstar.grgit.exception;
