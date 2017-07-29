@@ -86,7 +86,7 @@ import org.ajoberstar.grgit.exception.GrgitException;
  *
  * @since 0.2.0
  */
-public class AuthConfig {
+class AuthConfig {
   /** System property name used to force a specific authentication option. */
   public static final String FORCE_OPTION = "org.ajoberstar.grgit.auth.force";
 

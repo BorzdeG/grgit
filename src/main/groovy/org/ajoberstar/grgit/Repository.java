@@ -13,43 +13,38 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ajoberstar.grgit
+package org.ajoberstar.grgit;
 
-import groovy.transform.Immutable
+import java.io.File;
+
+import org.eclipse.jgit.api.Git;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.ToString;
+import lombok.Value;
 
 /**
- * Remote repository.
- * @since 0.4.0
+ * A repository.
+ * @since 0.1.0
  */
-@Immutable
-class Remote {
+@AllArgsConstructor
+@Builder
+@ToString(includeFieldNames=true)
+@Value
+public class Repository {
   /**
-   * Name of the remote.
+   * The directory the repository is contained in.
    */
-  String name
+  File rootDir;
 
   /**
-   * URL to fetch from.
+   * The JGit instance opened for this repository.
    */
-  String url
+  Git jgit;
 
   /**
-   * URL to push to.
+   * The credentials used when talking to remote repositories.
    */
-  String pushUrl
-
-  /**
-   * Specs to fetch from the remote.
-   */
-  List fetchRefSpecs = []
-
-  /**
-   * Specs to push to the remote.
-   */
-  List pushRefSpecs = []
-
-  /**
-   * Whether or not pushes will mirror the repository.
-   */
-  boolean mirror
+  Credentials credentials;
 }

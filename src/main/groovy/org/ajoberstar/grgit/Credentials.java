@@ -13,35 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ajoberstar.grgit
+package org.ajoberstar.grgit;
 
-import groovy.transform.Immutable
-
-import org.eclipse.jgit.api.Git
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.ToString;
+import lombok.Value;
 
 /**
- * A repository.
- * @since 0.1.0
+ * Credentials to use for remote operations.
+ * @since 0.2.0
  */
-@Immutable(knownImmutableClasses=[Git, File, Credentials])
-class Repository {
-  /**
-   * The directory the repository is contained in.
-   */
-  File rootDir
+@AllArgsConstructor
+@Builder
+@ToString(includeFieldNames=true)
+@Value
+public class Credentials {
+  String username;
+  String password;
 
-  /**
-   * The JGit instance opened for this repository.
-   */
-  Git jgit
-
-  /**
-   * The credentials used when talking to remote repositories.
-   */
-  Credentials credentials
-
-  @Override
-  String toString() {
-    return "Repository(${rootDir.canonicalPath})"
+  public boolean isPopulated() {
+    return username != null;
   }
 }

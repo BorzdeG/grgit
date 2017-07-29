@@ -13,15 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ajoberstar.grgit.operation
+package org.ajoberstar.grgit.operation;
 
-import java.util.concurrent.Callable
+import java.util.HashSet;
+import java.util.Set;
+import java.util.concurrent.Callable;
 
-import org.ajoberstar.grgit.Repository
-import org.ajoberstar.grgit.exception.GrgitException
-
-import org.eclipse.jgit.api.AddCommand
-import org.eclipse.jgit.api.errors.GitAPIException
+import org.ajoberstar.grgit.Repository;
+import org.ajoberstar.grgit.exception.GrgitException;
+import org.eclipse.jgit.api.AddCommand;
+import org.eclipse.jgit.api.errors.GitAPIException;
 
 /**
  * Adds files to the index.
@@ -46,33 +47,49 @@ import org.eclipse.jgit.api.errors.GitAPIException
  * @since 0.1.0
  * @see <a href="http://git-scm.com/docs/git-add">git-add Manual Page</a>
  */
-class AddOp implements Callable<Void> {
-  private final Repository repo
+public class AddOp implements Callable<Void> {
+  private final Repository repo;
+  private Set<String> patterns = new HashSet<>();
+  private boolean update = false;
 
+  public AddOp(Repository repo) {
+    this.repo = repo;
+  }
+
+  public Void call() {
+    AddCommand cmd = repo.getJgit().add();
+    patterns.forEach(cmd::addFilepattern);
+    cmd.setUpdate(update);
+    try {
+      cmd.call();
+      return null;
+    } catch (GitAPIException e) {
+      throw new GrgitException("Problem adding changes to index.", e);
+    }
+  }
+  
   /**
    * Patterns of files to add to the index.
+   * @return patterns
    */
-  Set<String> patterns = []
-
+  public Set<String> getPatterns() {
+	  return patterns;
+  }
+  
+  public void setPatterns(Set<String> patterns) {
+	  this.patterns = patterns;
+  }
+  
   /**
    * {@code true} if changes to all currently tracked files should be added
    * to the index, {@code false} otherwise.
+   * @return whether to update currently tracked files
    */
-  boolean update = false
-
-  AddOp(Repository repo) {
-    this.repo = repo
+  public boolean isUpdate() {
+	  return update;
   }
-
-  Void call() {
-    AddCommand cmd = repo.jgit.add()
-    patterns.each { cmd.addFilepattern(it) }
-    cmd.update = update
-    try {
-      cmd.call()
-      return null
-    } catch (GitAPIException e) {
-      throw new GrgitException('Problem adding changes to index.', e)
-    }
+  
+  public void setUpdate(boolean update) {
+	  this.update = update;
   }
 }

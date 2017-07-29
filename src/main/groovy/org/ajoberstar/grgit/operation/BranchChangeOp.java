@@ -13,20 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ajoberstar.grgit.operation
+package org.ajoberstar.grgit.operation;
 
-import java.util.concurrent.Callable
+import java.util.concurrent.Callable;
 
-import org.ajoberstar.grgit.Branch
-import org.ajoberstar.grgit.Repository
-import org.ajoberstar.grgit.exception.GrgitException
-import org.ajoberstar.grgit.service.ResolveService
-import org.ajoberstar.grgit.util.JGitUtil
+import org.ajoberstar.grgit.Branch;
+import org.ajoberstar.grgit.Repository;
+import org.ajoberstar.grgit.exception.GrgitException;
+import org.ajoberstar.grgit.service.ResolveService;
+import org.ajoberstar.grgit.util.JGitUtil;
 
-import org.eclipse.jgit.api.CreateBranchCommand
-import org.eclipse.jgit.api.CreateBranchCommand.SetupUpstreamMode
-import org.eclipse.jgit.api.errors.GitAPIException
-import org.eclipse.jgit.lib.Ref
+import org.eclipse.jgit.api.CreateBranchCommand;
+import org.eclipse.jgit.api.CreateBranchCommand.SetupUpstreamMode;
+import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.lib.Ref;
 
 /**
  * Changes a branch's start point and/or upstream branch. Returns the changed {@link Branch}.
@@ -62,61 +62,84 @@ import org.eclipse.jgit.lib.Ref
  * @since 0.2.0
  * @see <a href="http://git-scm.com/docs/git-branch">git-branch Manual Page</a>
  */
-class BranchChangeOp implements Callable<Branch> {
-  private final Repository repo
+public class BranchChangeOp implements Callable<Branch> {
+  private final Repository repo;
+  private String name;
+  private Object startPoint;
+  private Mode mode;
+
+  public BranchChangeOp(Repository repo) {
+    this.repo = repo;
+  }
+
+  public Branch call() {
+    if (JGitUtil.resolveBranch(repo, name) == null) {
+      throw new GrgitException("Branch does not exist: " + name);
+    }
+    if (startPoint == null) {
+      throw new GrgitException("Must set new startPoint.");
+    }
+    CreateBranchCommand cmd = repo.getJgit().branchCreate();
+    cmd.setName(name);
+    cmd.setForce(true);
+    if (startPoint != null) {
+      String rev = new ResolveService(repo).toRevisionString(startPoint);
+      cmd.setStartPoint(rev);
+    }
+    if (mode != null) {
+    	cmd.setUpstreamMode(mode.jgit);
+    }
+
+    try {
+      Ref ref = cmd.call();
+      return JGitUtil.resolveBranch(repo, ref);
+    } catch (GitAPIException e) {
+      throw new GrgitException("Problem changing branch.", e);
+    }
+  }
 
   /**
    * The name of the branch to change.
    */
-  String name
+  public String getName() {
+	return name;
+}
 
-  /**
-   * The commit the branch should now start at.
-   * @see {@link ResolveService#toRevisionString(Object)}
-   */
-  Object startPoint
+public void setName(String name) {
+	this.name = name;
+}
 
-  /**
-   * The tracking mode to use.
-   */
-  Mode mode
+/**
+ * The commit the branch should now start at.
+ * @see {@link ResolveService#toRevisionString(Object)}
+ */
+public Object getStartPoint() {
+	return startPoint;
+}
 
-  BranchChangeOp(Repository repo) {
-    this.repo = repo
-  }
+public void setStartPoint(Object startPoint) {
+	this.startPoint = startPoint;
+}
 
-  Branch call() {
-    if (!JGitUtil.resolveBranch(repo, name)) {
-      throw new GrgitException("Branch does not exist: ${name}")
-    }
-    if (!startPoint) {
-      throw new GrgitException('Must set new startPoint.')
-    }
-    CreateBranchCommand cmd = repo.jgit.branchCreate()
-    cmd.name = name
-    cmd.force = true
-    if (startPoint) {
-      String rev = new ResolveService(repo).toRevisionString(startPoint)
-      cmd.startPoint = rev
-    }
-    if (mode) { cmd.upstreamMode = mode.jgit }
+/**
+ * The tracking mode to use.
+ */
+public Mode getMode() {
+	return mode;
+}
 
-    try {
-      Ref ref = cmd.call()
-      return JGitUtil.resolveBranch(repo, ref)
-    } catch (GitAPIException e) {
-      throw new GrgitException('Problem changing branch.', e)
-    }
-  }
+public void setMode(Mode mode) {
+	this.mode = mode;
+}
 
-  static enum Mode {
+public static enum Mode {
     TRACK(SetupUpstreamMode.TRACK),
-    NO_TRACK(SetupUpstreamMode.NOTRACK)
+    NO_TRACK(SetupUpstreamMode.NOTRACK);
 
-    private final SetupUpstreamMode jgit
+    private final SetupUpstreamMode jgit;
 
     Mode(SetupUpstreamMode jgit) {
-      this.jgit = jgit
+      this.jgit = jgit;
     }
   }
 }

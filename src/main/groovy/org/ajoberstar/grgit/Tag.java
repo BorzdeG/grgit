@@ -13,48 +13,53 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ajoberstar.grgit
+package org.ajoberstar.grgit;
 
-import groovy.transform.Immutable
 
-import org.eclipse.jgit.lib.Repository
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.ToString;
+import lombok.Value;
 
 /**
  * A tag.
  * @since 0.2.0
  */
-@Immutable
-class Tag {
+@AllArgsConstructor
+@Builder
+@ToString(includeFieldNames=true)
+@Value
+public class Tag {
   /**
    * The commit this tag points to.
    */
-  Commit commit
+  Commit commit;
 
   /**
    * The person who created the tag.
    */
-  Person tagger
+  Person tagger;
 
   /**
    * The full name of this tag.
    */
-  String fullName
+  String fullName;
 
   /**
    * The full tag message.
    */
-  String fullMessage
+  String fullMessage;
 
   /**
    * The shortened tag message.
    */
-  String shortMessage
+  String shortMessage;
 
   /**
    * The simple name of this tag.
    * @return the simple name
    */
-  String getName() {
-    return Repository.shortenRefName(fullName)
+  public String getName() {
+    return org.eclipse.jgit.lib.Repository.shortenRefName(fullName);
   }
 }

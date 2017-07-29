@@ -31,6 +31,7 @@ class AddOpSpec extends SimpleGitOpSpec {
       staged: [added: ['1.txt']],
       unstaged: [added: ['2.txt', 'test/3.txt']]
     )
+	Status.builder().staged(Status.Changes.builder().added(['1.txt').build()).unstaged(Status.Changes.builder().added(['2.txt', 'test/3.txt']).build()).build()
   }
 
   def 'adding specific directory adds all files within it'() {

@@ -13,34 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ajoberstar.grgit
+package org.ajoberstar.grgit;
 
-import groovy.transform.Immutable
-
-import org.eclipse.jgit.lib.Repository
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.ToString;
+import lombok.Value;
 
 /**
- * A branch.
- * @since 0.2.0
+ * A person.
+ * @since 0.1.0
  */
-@Immutable
-class Branch {
+@AllArgsConstructor
+@Builder
+@ToString(includeFieldNames=true)
+@Value
+public class Person {
   /**
-   * The fully qualified name of this branch.
+   * Name of person.
    */
-  String fullName
+  String name;
 
   /**
-   * This branch's upstream branch. {@code null} if this branch isn't
-   * tracking an upstream.
+   * Email address of person.
    */
-  Branch trackingBranch
-
-  /**
-   * The simple name of the branch.
-   * @return the simple name
-   */
-  String getName() {
-    return Repository.shortenRefName(fullName)
-  }
+  String email;
 }

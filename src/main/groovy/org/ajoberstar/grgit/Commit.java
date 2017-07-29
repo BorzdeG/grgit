@@ -13,58 +13,78 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ajoberstar.grgit
+package org.ajoberstar.grgit;
 
-import groovy.transform.Immutable
+import java.util.Date;
+import java.util.List;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Singular;
+import lombok.ToString;
+import lombok.Value;
 
 /**
  * A commit.
  * @since 0.1.0
  */
- @Immutable
-class Commit {
+@AllArgsConstructor
+@Builder
+@ToString(includeFieldNames=true)
+@Value
+public class Commit {
   /**
    * The full hash of the commit.
    */
-  String id
+  String id;
 
   /**
    * Hashes of any parent commits.
    */
-  List<String> parentIds
+  @Singular
+  List<String> parentIds;
 
   /**
    * The author of the changes in the commit.
    */
-  Person author
+  Person author;
 
   /**
    * The committer of the changes in the commit.
    */
-  Person committer
+  Person committer;
 
   /**
    * The time the commit was created in seconds since "the epoch".
    */
-  int time
+  int time;
 
   /**
    * The full commit message.
    */
-  String fullMessage
+  String fullMessage;
 
   /**
    * The shortened commit message.
    */
-  String shortMessage
+  String shortMessage;
 
   /**
    * The time the commit was created.
    * @return the date
    */
-  Date getDate() {
-    long seconds = Integer.valueOf(time).longValue()
-    return new Date(seconds * 1000)
+  public Date getDate() {
+    long seconds = Integer.valueOf(time).longValue();
+    return new Date(seconds * 1000);
+  }
+  
+  /**
+   * The first {@code length} characters of the commit hash.
+   * @param length the number of characters to abbreviate the
+   * hash to (defaults to 7)
+   */
+  public String getAbbreviatedId() {
+	  return getAbbreviatedId(7);
   }
 
   /**
@@ -72,7 +92,7 @@ class Commit {
    * @param length the number of characters to abbreviate the
    * hash to (defaults to 7)
    */
-  String getAbbreviatedId(int length = 7) {
-    return id[0..(length - 1)]
+  public String getAbbreviatedId(int length) {
+	  return id.substring(0, length);
   }
 }

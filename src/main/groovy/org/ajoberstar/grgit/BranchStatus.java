@@ -13,23 +13,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ajoberstar.grgit
+package org.ajoberstar.grgit;
 
-import groovy.transform.Immutable
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.ToString;
+import lombok.Value;
 
 /**
- * A person.
- * @since 0.1.0
+ * The tracking status of a branch.
+ * @since 0.2.0
  */
- @Immutable
-class Person {
+@AllArgsConstructor
+@Builder
+@ToString(includeFieldNames=true)
+@Value
+public class BranchStatus {
   /**
-   * Name of person.
+   * The branch this object is for.
    */
-  String name
+  Branch branch;
 
   /**
-   * Email address of person.
+   * The number of commits this branch is ahead of its upstream.
    */
-  String email
+  int aheadCount;
+
+  /**
+   * The number of commits this branch is behind its upstream.
+   */
+  int behindCount;
 }

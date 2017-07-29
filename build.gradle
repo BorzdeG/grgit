@@ -1,5 +1,6 @@
 plugins {
   id 'org.ajoberstar.defaults' version '0.7.3'
+  id 'io.franzbecker.gradle-lombok' version '1.10'
   id 'groovy'
 }
 
@@ -10,6 +11,11 @@ sourceCompatibility = '1.8'
 
 repositories {
   mavenCentral()
+}
+
+lombok {
+	version = '1.16.18'
+	sha256 = ''
 }
 
 def jgitVersion = '4.8.0.201706111038-r'

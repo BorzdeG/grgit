@@ -13,19 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ajoberstar.grgit.operation
+package org.ajoberstar.grgit.operation;
 
-import org.ajoberstar.grgit.service.ResolveService
+import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.stream.Collectors;
 
-import java.util.concurrent.Callable
-
-import org.ajoberstar.grgit.Branch
-import org.ajoberstar.grgit.Repository
-import org.ajoberstar.grgit.exception.GrgitException
-import org.ajoberstar.grgit.util.JGitUtil
-
-import org.eclipse.jgit.api.ListBranchCommand
-import org.eclipse.jgit.api.errors.GitAPIException
+import org.ajoberstar.grgit.Branch;
+import org.ajoberstar.grgit.Repository;
+import org.ajoberstar.grgit.exception.GrgitException;
+import org.ajoberstar.grgit.service.ResolveService;
+import org.ajoberstar.grgit.util.JGitUtil;
+import org.eclipse.jgit.api.ListBranchCommand;
+import org.eclipse.jgit.api.errors.GitAPIException;
 
 /**
  * Lists branches in the repository. Returns a list of {@link Branch}.
@@ -60,47 +60,61 @@ import org.eclipse.jgit.api.errors.GitAPIException
  * @since 0.2.0
  * @see <a href="http://git-scm.com/docs/git-branch">git-branch Manual Page</a>
  */
-class BranchListOp implements Callable<List<Branch>> {
-  private final Repository repo
+public class BranchListOp implements Callable<List<Branch>> {
+  private final Repository repo;
+  private Mode mode = Mode.LOCAL;
+  private Object contains = null;
+
+  public BranchListOp(Repository repo) {
+    this.repo = repo;
+  }
+
+  public List<Branch> call() {
+    ListBranchCommand cmd = repo.getJgit().branchList();
+    cmd.setListMode(mode.jgit);
+    if (contains != null) {
+      cmd.setContains(new ResolveService(repo).toRevisionString(contains));
+    }
+    try {
+    	return cmd.call().stream()
+    		.map(ref -> JGitUtil.resolveBranch(repo, ref.getName()))
+    		.collect(Collectors.toList());
+    } catch (GitAPIException e) {
+      throw new GrgitException("Problem listing branches.", e);
+    }
+  }
 
   /**
    * Which branches to return.
    */
-  Mode mode = Mode.LOCAL
+  public Mode getMode() {
+	return mode;
+}
 
-  /**
-   * Commit ref branches must contains
-   */
-  Object contains = null
+public void setMode(Mode mode) {
+	this.mode = mode;
+}
 
-  BranchListOp(Repository repo) {
-    this.repo = repo
-  }
+/**
+ * Commit ref branches must contains
+ */
+public Object getContains() {
+	return contains;
+}
 
-  List<Branch> call() {
-    ListBranchCommand cmd = repo.jgit.branchList()
-    cmd.listMode = mode.jgit
-    if (contains) {
-      cmd.contains = new ResolveService(repo).toRevisionString(contains)
-    }
-    try {
-      return cmd.call().collect {
-        JGitUtil.resolveBranch(repo, it.name)
-      }
-    } catch (GitAPIException e) {
-      throw new GrgitException('Problem listing branches.', e)
-    }
-  }
+public void setContains(Object contains) {
+	this.contains = contains;
+}
 
-  static enum Mode {
+public static enum Mode {
     ALL(ListBranchCommand.ListMode.ALL),
     REMOTE(ListBranchCommand.ListMode.REMOTE),
-    LOCAL(null)
+    LOCAL(null);
 
-    private final ListBranchCommand.ListMode jgit
+    private final ListBranchCommand.ListMode jgit;
 
     private Mode(ListBranchCommand.ListMode jgit) {
-      this.jgit = jgit
+      this.jgit = jgit;
     }
   }
 }

@@ -13,33 +13,41 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ajoberstar.grgit
+package org.ajoberstar.grgit;
 
-import groovy.transform.Canonical
+
+import org.eclipse.jgit.lib.Repository;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.ToString;
+import lombok.Value;
 
 /**
- * Credentials to use for remote operations.
+ * A branch.
  * @since 0.2.0
  */
-@Canonical
-class Credentials {
-  final String username
-  final String password
+@AllArgsConstructor
+@Builder
+@ToString(includeFieldNames=true)
+@Value
+public class Branch {
+  /**
+   * The fully qualified name of this branch.
+   */
+  String fullName;
 
-  Credentials(String username, String password) {
-    this.username = username;
-    this.password = password;
-  }
+  /**
+   * This branch's upstream branch. {@code null} if this branch isn't
+   * tracking an upstream.
+   */
+  Branch trackingBranch;
 
-  String getUsername() {
-    return username ?: ''
-  }
-
-  String getPassword() {
-    return password ?: ''
-  }
-
-  boolean isPopulated() {
-    return username != null
+  /**
+   * The simple name of the branch.
+   * @return the simple name
+   */
+  public String getName() {
+    return Repository.shortenRefName(fullName);
   }
 }
