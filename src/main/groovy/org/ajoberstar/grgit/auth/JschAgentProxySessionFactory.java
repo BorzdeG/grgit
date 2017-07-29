@@ -42,7 +42,7 @@ import com.jcraft.jsch.agentproxy.usocket.NCUSocketFactory;
  *
  * @since 0.1.0
  */
-public class JschAgentProxySessionFactory extends JschConfigSessionFactory {
+class JschAgentProxySessionFactory extends JschConfigSessionFactory {
   private static final Logger logger = LoggerFactory.getLogger(JschAgentProxySessionFactory.class);
   private final AuthConfig config;
 

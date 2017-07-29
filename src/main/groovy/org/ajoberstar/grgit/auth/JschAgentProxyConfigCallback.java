@@ -25,7 +25,7 @@ import org.eclipse.jgit.transport.Transport;
  *
  * @since 0.1.0
  */
-public class JschAgentProxyConfigCallback implements TransportConfigCallback {
+class JschAgentProxyConfigCallback implements TransportConfigCallback {
   private final AuthConfig config;
 
   public JschAgentProxyConfigCallback(AuthConfig config) {
